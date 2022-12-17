@@ -57,7 +57,13 @@ class DefaultWordFrequencyAnalyzer implements WordFrequencyAnalyzer {
 
   public int calculateFrequencyForWord(String text, String word) {
     Integer freqency = 0;
-
+    String targetWord = word.toLowerCase();
+    String[] words = text.toLowerCase().split("\\P{Alpha}+");
+    for (String textWord : words) {
+      if (textWord.equals(targetWord)) {
+        freqency+=1;
+      }
+    }
     return freqency;
   };
 
@@ -74,7 +80,10 @@ public class Main {
 
   public static void main(String[] args) {
     WordFrequencyAnalyzer frequencyAnalyzer = new DefaultWordFrequencyAnalyzer();
-    int highestFreq = frequencyAnalyzer.calculateHighestFrequency("Hello World, hello me");
+    String testText = "Hello World, hello me, hello everyone, 123, I'm here today to speak to you about counting words";
+    int highestFreq = frequencyAnalyzer.calculateHighestFrequency(testText);
     System.out.printf("Frequency: %d%n", highestFreq);
+    int freqOfWord = frequencyAnalyzer.calculateFrequencyForWord(testText, "to");
+    System.out.printf("FreqOfWord: %d%n", freqOfWord);
   }
 }
