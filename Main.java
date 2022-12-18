@@ -24,6 +24,18 @@ class DefaultWordFrequency implements WordFrequency {
   }
 }
 
+class Sort implements Comparator<WordFrequency> {
+  // Used for sorting in ascending order of
+  // roll number
+  public int compare(WordFrequency a, WordFrequency b)
+  {
+      if (a.getFrequency() != b.getFrequency()) {
+        return b.getFrequency() - a.getFrequency();
+      };
+      return a.getWord().compareTo(b.getWord());
+  }
+}
+
 interface WordFrequencyAnalyzer {
   int calculateHighestFrequency(String text);
 
@@ -56,21 +68,45 @@ class DefaultWordFrequencyAnalyzer implements WordFrequencyAnalyzer {
   };
 
   public int calculateFrequencyForWord(String text, String word) {
-    Integer freqency = 0;
+    Integer frequency = 0;
     String targetWord = word.toLowerCase();
     String[] words = text.toLowerCase().split("\\P{Alpha}+");
     for (String textWord : words) {
       if (textWord.equals(targetWord)) {
-        freqency+=1;
+        frequency += 1;
       }
     }
-    return freqency;
+    return frequency;
   };
 
   public WordFrequency[] calculateMostFrequentNWords(String text, int n) {
-    WordFrequency wordFrequency = new DefaultWordFrequency("tommy", 2);
-    WordFrequency[] wordFrequencies = { wordFrequency };
-    return wordFrequencies;
+
+    Map<String, Integer> wordFrequencyMap = new HashMap<String, Integer>();
+    String[] words = text.toLowerCase().split("\\P{Alpha}+");
+    for (String word : words) {
+      if (wordFrequencyMap.containsKey(word)) {
+        Integer newFrequency = wordFrequencyMap.get(word) + 1;
+        wordFrequencyMap.put(word, newFrequency);
+      } else {
+        wordFrequencyMap.put(word, 1);
+      }
+    }
+
+    WordFrequency[] wordFrequencies = new WordFrequency[wordFrequencyMap.size()];
+    int j = 0;
+    for (Map.Entry<String, Integer> entry : wordFrequencyMap.entrySet()) {
+      wordFrequencies[j] = new DefaultWordFrequency(entry.getKey(), entry.getValue());
+      j++;
+    }
+    //Sort WordFrequencies
+    Arrays.sort(wordFrequencies, new Sort());
+    WordFrequency[] wordFrequenciesAnswer = Arrays.copyOfRange(wordFrequencies, 0, n);
+
+    for (int i = 0; i < wordFrequenciesAnswer.length; i++) {
+      System.out.println(wordFrequenciesAnswer[i].getWord());
+    }
+
+    return wordFrequenciesAnswer;
   };
 }
 
@@ -85,5 +121,10 @@ public class Main {
     System.out.printf("Frequency: %d%n", highestFreq);
     int freqOfWord = frequencyAnalyzer.calculateFrequencyForWord(testText, "to");
     System.out.printf("FreqOfWord: %d%n", freqOfWord);
+    WordFrequency[] freqOfNWords = frequencyAnalyzer.calculateMostFrequentNWords(testText, 5);
+
+    for (int i = 0; i < freqOfNWords.length; i++) {
+      System.out.printf("freqOfNWords: %s%n", freqOfNWords[i].getWord());
+    }
   }
 }
